@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaTech: From Crisis to $100M</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        
+        /* Header & Navigation */
+        .header { background-color: #fff; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-left: 6px solid #2c3e50; }
+        .header h1 { margin: 0; font-size: 24px; color: #2c3e50; }
+        .header p { margin: 5px 0 0; color: #7f8c8d; font-size: 14px; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 12px 25px; border: none; background: #e0e0e0; cursor: pointer; border-radius: 8px; font-weight: 600; color: #555; transition: 0.3s; }
+        .tab-btn.active { background: #3498db; color: white; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
+        .tab-btn:hover:not(.active) { background: #d5d5d5; }
+
+        /* Grid Layout */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 25px; display: none; }
+        .dashboard-grid.active { display: grid; }
+        
+        .card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: relative; }
+        .card h3 { margin-top: 0; font-size: 18px; color: #34495e; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        
+        /* Metric Badges */
+        .badge { font-size: 12px; padding: 4px 8px; border-radius: 4px; }
+        .badge-red { background: #ffebee; color: #c62828; }
+        .badge-green { background: #e8f5e9; color: #2e7d32; }
+        
+        /* KPI Cards (Top Row) */
+        .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
+        .kpi-card { background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .kpi-val { font-size: 28px; font-weight: bold; margin: 10px 0; display: block; }
+        .kpi-label { color: #7f8c8d; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Colors for dynamic text */
+        .text-danger { color: #e74c3c; }
+        .text-success { color: #27ae60; }
+        .text-neutral { color: #2c3e50; }
+
+        canvas { max-height: 300px; }
+
+        /* Print Button Styles */
+        .print-btn-container { text-align: center; margin: 40px 0; }
+        .print-btn { background-color: #2c3e50; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; transition: background 0.3s; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; }
+        .print-btn:hover { background-color: #34495e; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+
+        /* --- PRINT MODE STYLES --- */
+        @media print {
+            body { background-color: white; padding: 0; -webkit-print-color-adjust: exact; }
+            .header { box-shadow: none; border: 1px solid #ddd; margin-bottom: 10px; }
+            .tabs, .print-btn-container { display: none !important; } /* Hide interactive buttons */
+            
+            /* Force BOTH sections to show when printing so it looks like a full report */
+            .dashboard-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 20px; margin-bottom: 30px; page-break-inside: avoid; }
+            
+            .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+            .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+            
+            /* Add section titles for print */
+            #problem::before { content: "SECTION 1: THE CRISIS"; display: block; grid-column: 1/-1; font-size: 18px; font-weight: bold; color: #c62828; margin-bottom: 10px; border-bottom: 2px solid #c62828; }
+            #solution::before { content: "SECTION 2: THE STRATEGY"; display: block; grid-column: 1/-1; font-size: 18px; font-weight: bold; color: #27ae60; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #27ae60; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>
+            <h1>NovaTech Growth Engine</h1>
+            <p>Data Source: Problem Statement 1 & Full Analysis PDF</p>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 12px; color: #95a5a6;">TARGET TIMELINE</div>
+            <div style="font-weight: bold; color: #2c3e50;">18 Months</div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('problem')">🚨 The Crisis (Diagnosis)</button>
+        <button class="tab-btn" onclick="switchTab('solution')">🚀 The Solution (Strategy)</button>
+    </div>
+
+    <div id="kpi-container" class="kpi-row">
+        </div>
+
+    <div id="problem" class="dashboard-grid active">
+        <div class="card">
+            <h3>📉 Unit Economics Collapse <span class="badge badge-red">CRITICAL</span></h3>
+            <canvas id="cacChart"></canvas>
+            [cite_start]<p style="font-size: 13px; color: #666; margin-top: 15px;">CAC doubled from $8.2k to $16.4k in 18 months[cite: 4, 28].</p>
+        </div>
+        <div class="card">
+            <h3>🔻 The Funnel Hemorrhage <span class="badge badge-red">LEAKY</span></h3>
+            <canvas id="funnelChart"></canvas>
+            [cite_start]<p style="font-size: 13px; color: #666; margin-top: 15px;">Only 18 deals closed from 800 leads (2.3% conversion)[cite: 6, 38].</p>
+        </div>
+        <div class="card">
+            <h3>⏳ Sales Cycle Velocity <span class="badge badge-red">STALLED</span></h3>
+            <canvas id="cycleChart"></canvas>
+            [cite_start]<p style="font-size: 13px; color: #666; margin-top: 15px;">Cycles extended 98% (45 days → 89 days)[cite: 6, 29].</p>
+        </div>
+        <div class="card">
+            <h3>⚠️ Concentration Risk <span class="badge badge-red">HIGH RISK</span></h3>
+            <canvas id="riskChart"></canvas>
+            [cite_start]<p style="font-size: 13px; color: #666; margin-top: 15px;">60% of revenue held by just 40 customers[cite: 7, 29].</p>
+        </div>
+    </div>
+
+    <div id="solution" class="dashboard-grid">
+        <div class="card">
+            <h3>🚀 Revenue Trajectory to $100M <span class="badge badge-green">GOAL</span></h3>
+            <canvas id="growthChart"></canvas>
+            [cite_start]<p style="font-size: 13px; color: #666; margin-top: 15px;">Targeting $100M run-rate by month 18[cite: 9, 20].</p>
+        </div>
+        <div class="card">
+            <h3>🎯 Funnel Optimization Targets <span class="badge badge-green">PILLAR 1</span></h3>
+            <canvas id="optFunnelChart"></canvas>
+            [cite_start]<p style="font-size: 13px; color: #666; margin-top: 15px;">Improving conversion from 2.3% to 6.5% via Lead Scoring[cite: 22, 73].</p>
+        </div>
+        <div class="card">
+            <h3>⚡ Velocity Acceleration <span class="badge badge-green">PILLAR 2</span></h3>
+            <canvas id="velocityChart"></canvas>
+            [cite_start]<p style="font-size: 13px; color: #666; margin-top: 15px;">Reducing cycle to 58 days using Playbooks & Automation[cite: 22, 92].</p>
+        </div>
+        <div class="card">
+            <h3>💰 Investment vs. Return (ROI) <span class="badge badge-green">252x ROI</span></h3>
+            <canvas id="roiChart"></canvas>
+            [cite_start]<p style="font-size: 13px; color: #666; margin-top: 15px;">$300k Investment yields $108M incremental revenue[cite: 253, 254].</p>
+        </div>
+    </div>
+
+    <div class="print-btn-container">
+        <button class="print-btn" onclick="window.print()">
+            📄 Export Full Report to PDF
+        </button>
+    </div>
+
+    <script>
+        // --- DATA SETS ---
+        const problemKPIs = `
+            <div class="kpi-card"><span class="kpi-label">Current Revenue</span><span class="kpi-val text-neutral">$12M</span></div>
+            <div class="kpi-card"><span class="kpi-label">Current CAC</span><span class="kpi-val text-danger">$16,400</span></div>
+            <div class="kpi-card"><span class="kpi-label">Conversion Rate</span><span class="kpi-val text-danger">2.3%</span></div>
+            <div class="kpi-card"><span class="kpi-label">Major Expiry Risk</span><span class="kpi-val text-danger">$1.8M</span></div>
+        `;
+        
+        const solutionKPIs = `
+            <div class="kpi-card"><span class="kpi-label">Target Revenue</span><span class="kpi-val text-success">$100M</span></div>
+            <div class="kpi-card"><span class="kpi-label">Target CAC</span><span class="kpi-val text-success">$12,500</span></div>
+            <div class="kpi-card"><span class="kpi-label">Target Conversion</span><span class="kpi-val text-success">6.5%</span></div>
+            <div class="kpi-card"><span class="kpi-label">Est. ROI</span><span class="kpi-val text-success">252x</span></div>
+        `;
+
+        // Initialize KPIs
+        document.getElementById('kpi-container').innerHTML = problemKPIs;
+
+        // --- TAB SWITCHING LOGIC ---
+        function switchTab(tabId) {
+            // Hide all grids
+            document.querySelectorAll('.dashboard-grid').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Show selected
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active'); // Assumes button click triggers this
+
+            // Update KPIs
+            document.getElementById('kpi-container').innerHTML = (tabId === 'problem') ? problemKPIs : solutionKPIs;
+        }
+
+        // --- CHARTS CONFIGURATION ---
+        Chart.defaults.font.family = "'Segoe UI', sans-serif";
+        Chart.defaults.color = "#666";
+
+        // 1. CAC Chart (Problem)
+        new Chart(document.getElementById('cacChart'), {
+            type: 'bar',
+            data: {
+                labels: ['18 Months Ago', 'Today'],
+                datasets: [{
+                    label: 'CAC ($)',
+                    data: [8200, 16400],
+                    backgroundColor: ['#bdc3c7', '#e74c3c'],
+                    borderRadius: 5
+                }]
+            },
+            options: { plugins: { legend: { display: false } } }
+        });
+
+        // 2. Funnel Chart (Problem)
+        new Chart(document.getElementById('funnelChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Leads', 'MQLs', 'Proposals', 'Wins'],
+                datasets: [{
+                    label: 'Volume',
+                    data: [800, 184, 92, 18],
+                    backgroundColor: '#e74c3c',
+                    borderRadius: 4
+                }]
+            },
+            options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+        });
+
+        // 3. Cycle Chart (Problem)
+        new Chart(document.getElementById('cycleChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Benchmark (45d)', 'Excess Delay (44d)'],
+                datasets: [{
+                    data: [45, 44],
+                    backgroundColor: ['#2ecc71', '#e74c3c']
+                }]
+            },
+            options: { cutout: '70%', plugins: { title: { display: true, text: 'Total: 89 Days' } } }
+        });
+
+        // 4. Risk Chart (Problem)
+        new Chart(document.getElementById('riskChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Top 40 Clients (60%)', 'Other 380 Clients (40%)'],
+                datasets: [{
+                    data: [60, 40],
+                    backgroundColor: ['#e74c3c', '#3498db']
+                }]
+            }
+        });
+
+        // 5. Growth Chart (Solution)
+        new Chart(document.getElementById('growthChart'), {
+            type: 'line',
+            data: {
+                labels: ['Current', 'Q1', 'Q2', 'Q3', 'Q4 (Target)'],
+                datasets: [{
+                    label: 'Revenue ($M)',
+                    data: [12, 13, 22, 35, 100],
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5
+                }]
+            }
+        });
+
+        // 6. Optimized Funnel (Solution)
+        new Chart(document.getElementById('optFunnelChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Current', 'Target'],
+                datasets: [{
+                    label: 'Conversion Rate (%)',
+                    data: [2.3, 6.5],
+                    backgroundColor: ['#e74c3c', '#27ae60'],
+                    borderRadius: 5
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+        });
+
+        // 7. Velocity Chart (Solution)
+        new Chart(document.getElementById('velocityChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Negotiation', 'Proposal', 'Discovery'],
+                datasets: [
+                    { label: 'Current Days', data: [36, 8, 10], backgroundColor: '#e74c3c' },
+                    { label: 'Target Days', data: [15, 2, 3], backgroundColor: '#27ae60' }
+                ]
+            },
+            options: { scales: { x: { stacked: false }, y: { beginAtZero: true } } }
+        });
+
+        // 8. ROI Chart (Solution)
+        new Chart(document.getElementById('roiChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Investment', 'Return (Yr 1)'],
+                datasets: [{
+                    label: 'Amount ($)',
+                    data: [300000, 108000000],
+                    backgroundColor: ['#95a5a6', '#f1c40f'],
+                    borderRadius: 5
+                }]
+            },
+            options: { 
+                plugins: { legend: { display: false } }, 
+                scales: { y: { type: 'logarithmic' } } 
+            }
+        });
+
+    </script>
+</body>
+</html>
