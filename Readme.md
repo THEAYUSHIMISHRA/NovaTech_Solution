@@ -1,6 +1,7 @@
-# 🚀 NovaTech Solutions: Growth Strategy Dashboard
+# Team Matrix presents : 🚀 NovaTech Solutions: Growth Strategy Dashboard
 
 **Live Demo:** [Insert your GitHub Pages Link Here]
+
 
 ## 📋 Project Overview
 This project is a web-based executive dashboard designed to address **"Problem Statement 1: Solving the Growth Equation"** for NovaTech Solutions. 
@@ -27,4 +28,7 @@ All metrics and projections are derived from the *NovaTech Case Study Analysis* 
 ## 🚀 How to Run Locally
 1. Clone the repository.
 2. Open `index.html` in any modern web browser.
+
 3. No build step or server required.
+
+
