@@ -1,5 +1,4 @@
-# Hey ! Team Matrix here
-#🚀 NovaTech Solutions: Growth Strategy Dashboard
+# Hey ! Team Matrix presents 🚀 NovaTech Solutions: Growth Strategy Dashboard
 
 **Live Demo:** [Insert your GitHub Pages Link Here]
 
@@ -31,3 +30,4 @@ All metrics and projections are derived from the *NovaTech Case Study Analysis* 
 2. Open `index.html` in any modern web browser.
 
 3. No build step or server required.
+
